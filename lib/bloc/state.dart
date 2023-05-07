@@ -44,15 +44,15 @@ class StoryState extends Equatable {
 
   @override
   List<Object?> get props => [
-        stories,
-        currentStoryIndex,
-        isPlaying,
-        runnedseconds,
-        currenstorylistindex,
-        storygroupslastseenindex
+        stories, // List of stories being displayed
+        currentStoryIndex, // Index of the current story being displayed
+        isPlaying, // Whether the story is currently playing or paused
+        runnedseconds, // Number of seconds the current story has been playing
+        currenstorylistindex, // Index of the current story group being displayed
+        storygroupslastseenindex // List of indices for the last seen story in each story group
       ];
 }
-
+// Represents a single story in the list of stories being displayed
 class Story {
   final String name;
   final String url;
@@ -77,18 +77,22 @@ enum MediaType {
 // defination of story block
 class StoryBloc extends Bloc<StoryEvent, StoryState> {
   StoryBloc() : super(const StoryState()) {
+    // When a LoadStoryEvent is triggered, update the state with the new list of stories
     on<LoadStoryEvent>((event, emit) => {
           emit(StoryState(
               stories: event.storylist,
               storygroupslastseenindex:
                   List.generate(event.storylist.length, (index) => 0))),
         });
+        
+    // When a PreviousStoryEvent is triggered, move to the previous story in the list
     on<PreviousStoryEvent>(
       (event, emit) => emit(state.copyWith(
         runnedseconds: 0.0,
         currentStoryIndex: state.currentStoryIndex - 1,
       )),
     );
+    // When a NextStoryGroup event is triggered, move to the next group of stories
     on<NextStoryGroup>(
       (event, emit) => {
         emit(state.copyWith(
@@ -99,6 +103,7 @@ class StoryBloc extends Bloc<StoryEvent, StoryState> {
         )),
       },
     );
+   // When a PreviousStoryGroup event is triggered, move to the previous group of stories
     on<PreviousStoryGroup>(
       (event, emit) => emit(state.copyWith(
           runnedseconds: 0.0,
@@ -121,6 +126,7 @@ class StoryBloc extends Bloc<StoryEvent, StoryState> {
                   currentStoryIndex: state.currentStoryIndex + 1)),
             },
         });
+        // When a PlayPauseEvent is triggered, update the isPlaying flag
     on<PlayPauseEvent>(
       (event, emit) => emit(state.copyWith(isPlaying: event.isPlaying)),
     );
