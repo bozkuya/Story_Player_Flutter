@@ -17,11 +17,12 @@ class PlayPauseEvent extends StoryEvent {
 }
 
 class ProgressTrackerInitiate extends StoryEvent {
+    // The number of seconds that have elapsed since the story started playing
   final double runnedseconds;
 
   ProgressTrackerInitiate(this.runnedseconds);
 }
-
+// This event is triggered when the user clicks on the next story group button
 class NextStoryEvent extends StoryEvent {
   final int currentIndex;
 
@@ -39,13 +40,13 @@ class PreviousStoryEvent extends StoryEvent {
 
   PreviousStoryEvent(this.currentIndex);
 }
-
+// This event is triggered when the user clicks on the previous story group button
 class PreviousStoryGroup extends StoryEvent {
   final int currentgroup;
 
   PreviousStoryGroup(this.currentgroup);
 }
-
+// This event is triggered when the user has seen the last story group
 // ignore: camel_case_types
 class lastseeningroup extends StoryEvent {
   final List<int> currentIndex;
