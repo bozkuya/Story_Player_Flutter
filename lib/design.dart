@@ -21,7 +21,7 @@ var timercount = 0;
 var touchdiff = 0;
 double poseval = 0;
 
-// disgn state class
+// design state class
 // ignore: camel_case_types
 class _designState extends State<design> {
   final _pageNotifier = ValueNotifier(0.0);
@@ -42,7 +42,7 @@ class _designState extends State<design> {
       controller.addListener(_listener);
     });
     _controller = VideoPlayerController.network(
-      'https://www.pexels.com/download/video/3112280/',
+      'https://cdn.coverr.co/videos/coverr-friends-walking-down-a-road-7441/1080p.mp4?download=true',
     );
 
     mainbloc = StoryBloc();
@@ -65,7 +65,7 @@ class _designState extends State<design> {
           isseen: false,
           name: 'video_1',
           url:
-              'https://www.pexels.com/download/video/3112280/',
+              'https://cdn.coverr.co/videos/coverr-friends-walking-down-a-road-7441/1080p.mp4?download=true',
           mediaType: MediaType.video,
           duration: 20,
         ),
@@ -86,7 +86,7 @@ class _designState extends State<design> {
           isseen: false,
           name: 'video_2',
           url:
-              'https://www.pexels.com/download/video/3112280/',
+              'https://cdn.coverr.co/videos/coverr-friends-walking-down-a-road-7441/1080p.mp4?download=true',
           mediaType: MediaType.video,
           duration: 20,
         ),
@@ -127,12 +127,17 @@ class _designState extends State<design> {
     _watchingProgress();
   }
 // action function
+// This function is called when the user taps on the screen
   void _onTap(double dx) {
+    // Check if the user tapped on the left side of the screen
     if (dx < (MediaQuery.of(context).size.width / 2)) {
+      // If the current story is not the first one, go to the previous story
       if (mainbloc.state.currentStoryIndex > 0) {
+        // Reset the current story to its initial state
         story_reset();
 
         mainbloc.add(PreviousStoryEvent(1));
+        // If the current story is the last one in the current story list and there are more story lists, go to the next story list
       } else if (mainbloc.state.currentStoryIndex ==
               mainbloc.state.stories[mainbloc.state.currenstorylistindex]
                       .length -
@@ -141,7 +146,9 @@ class _designState extends State<design> {
               mainbloc.state.stories.length - 1) {
         controller.nextPage(
             duration: const Duration(milliseconds: 500), curve: Curves.linear);
+            // Trigger an event to go to the next story list
         mainbloc.add(NextStoryGroup(mainbloc.state.currenstorylistindex));
+        // If the current story is the first one in the current story list and there are previous story lists, go to the previous story list
       } else if (mainbloc.state.currentStoryIndex == 0 &&
           mainbloc.state.currenstorylistindex != 0) {
         controller.previousPage(
@@ -150,12 +157,14 @@ class _designState extends State<design> {
 
         story_reset();
       }
+      // If the user tapped on the right side of the screen
     } else {
       if (mainbloc.state.currentStoryIndex <
           mainbloc.state.stories[mainbloc.state.currenstorylistindex].length -
               1) {
         mainbloc.add(NextStoryEvent(1));
         story_reset();
+        // Go to the next page in the PageView
       } else {
         controller.nextPage(
             duration: const Duration(milliseconds: 500), curve: Curves.linear);
@@ -188,6 +197,7 @@ class _designState extends State<design> {
                     .duration *
                 1000)));
 // If the story is a video and the timer has just started, begin playing it
+// Check if the list of last seen story groups is not empty
         if (mainbloc.state.storygroupslastseenindex.isNotEmpty) {
           var modiflist = mainbloc.state.storygroupslastseenindex;
 
@@ -196,7 +206,9 @@ class _designState extends State<design> {
 
           mainbloc.add(lastseeningroup(modiflist));
         }
+        // If the current story is a video and less than 1 second has elapsed
       } else if (mainbloc.state.runnedseconds < 1 &&
+      // If the video has not started playing and has finished buffering, start playing the video and trigger events to update the UI
           mainbloc
                   .state
                   .stories[mainbloc.state.currenstorylistindex]
@@ -215,6 +227,7 @@ class _designState extends State<design> {
                 mainbloc.add(ProgressTrackerInitiate(
                     timercount / _controller.value.duration.inMilliseconds));
               })
+              // If the video is already playing and has buffered data, trigger events to update the UI
             : _controller.value.buffered.isNotEmpty &&
                     _controller.value.isPlaying
                 ? {
@@ -226,6 +239,7 @@ class _designState extends State<design> {
                 : null;
 // If the user has seen previous stories in this group, update the last-seen index
         if (mainbloc.state.storygroupslastseenindex.isNotEmpty &&
+         // Create a copy of the list of last seen story groups
             mainbloc
                     .state
                     .stories[mainbloc.state.currenstorylistindex]
@@ -239,10 +253,11 @@ class _designState extends State<design> {
 
           mainbloc.add(lastseeningroup(modiflist));
         }
+        // If the story has been running for at least 1 second
       } else if (mainbloc.state.runnedseconds >= 1) {
         timercount = 0;
         timer.cancel();
-
+        // Check if there are more stories in the current story list
         if (mainbloc.state.currentStoryIndex <
             mainbloc.state.stories[mainbloc.state.currenstorylistindex].length -
                 1) {
@@ -252,7 +267,7 @@ class _designState extends State<design> {
           if (mainbloc.state.currenstorylistindex <
               mainbloc.state.stories.length - 1) {
             mainbloc.add(NextStoryGroup(mainbloc.state.currenstorylistindex));
-
+            // Animate to the second page in the PageView and reset the current story to its initial state
             controller
                 .animateToPage(1,
                     duration: const Duration(milliseconds: 500),
@@ -268,25 +283,32 @@ class _designState extends State<design> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the width of the device screen
     var phowidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+       // Set the background color of the scaffold
       backgroundColor: Colors.black,
       body: Column(
         children: [
           Expanded(
             child: Listener(
+              // When the user starts touching the screen
               onPointerDown: (event) {
+                // Pause the video and stop the progress watcher
                 mainbloc.add(PlayPauseEvent(false));
                 watcher.cancel();
                 _controller.pause();
                 touchdiff = event.timeStamp.inMilliseconds;
                 poseval = event.position.dx;
               },
+              // When the user stops touching the screen
               onPointerUp: (event) {
+                // If the touch was short and still, trigger an onTap event
                 if ((event.timeStamp.inMilliseconds - touchdiff).abs() < 100 &&
                     (poseval - event.position.dx).abs() < 10) {
                   _onTap(event.position.dx);
+                  // If the touch was short and moved slightly, play the video and start the progress watcher.
                 } else if ((poseval - event.position.dx).abs() <= 20) {
                   mainbloc
                               .state
@@ -298,6 +320,7 @@ class _designState extends State<design> {
                       : null;
 
                   _watchingProgress();
+                  // If the touch was long or moved significantly, reset the story
                 } else {
                   story_reset();
                 }
@@ -310,20 +333,26 @@ class _designState extends State<design> {
                     builder: (BuildContext context, value, child) {
                       return PageView.builder(
                           controller: controller,
+                          // When the page changes
                           onPageChanged: (pagech) {
+                            // If the new page is a different story group than the current one
                             if (pagech != mainbloc.state.currenstorylistindex) {
+                              // If the new page is after the current one, trigger an event to go to the next story group
                               if (pagech >=
                                   mainbloc.state.currenstorylistindex) {
                                 mainbloc.add(NextStoryGroup(
                                     mainbloc.state.currenstorylistindex));
+                                    // If the new page is before the current one, trigger an event to go to the previous story group
                               } else if (pagech <=
                                   mainbloc.state.currenstorylistindex) {
                                 mainbloc.add(PreviousStoryGroup(
-                                    mainbloc.state.currenstorylistindex));
+                                    mainbloc.state.currenstorylistindex)); 
                               }
+                              // Reset the current story to its initial state
                               story_reset();
                             }
                           },
+                          // Set the number of items in the PageView
                           itemCount: mainbloc.state.stories.isNotEmpty
                               ? mainbloc
                                   .state
@@ -334,16 +363,19 @@ class _designState extends State<design> {
                           physics: const ClampingScrollPhysics(
                               parent: BouncingScrollPhysics()),
                           itemBuilder: (BuildContext context, position) {
+                            // Calculate the opacity of the item based on its position
                             double? opacu =
                                 lerpDouble(0, 1, (position - value).abs());
 
                             return BlocBuilder<StoryBloc, StoryState>(
                                 bloc: mainbloc,
                                 builder: (BuildContext context, state) {
+                                  // Check if there are any stories
                                   if (state.stories.isNotEmpty) {
                                     if (state.stories.isNotEmpty &&
                                         state.storygroupslastseenindex
                                             .isNotEmpty) {
+                                      // Create a stack with the story content
                                       return Opacity(
                                         opacity: 1 - opacu!,
                                         child: Transform(
@@ -360,6 +392,7 @@ class _designState extends State<design> {
                                               : Alignment.centerLeft,
                                           child: Stack(
                                             children: [
+                                               // Display the video or image based on the media type
                                               state
                                                           .stories[state
                                                                   .currenstorylistindex]
@@ -527,29 +560,19 @@ class _designState extends State<design> {
 }
 // videoplayer
 // ignore: camel_case_types
-class videoplayerwidget extends StatefulWidget {
-  const videoplayerwidget(
-      {super.key, required this.videourl, required this.controller});
+class videoplayerwidget extends StatelessWidget {
+  const videoplayerwidget({Key? key, required this.videourl, required this.controller}) : super(key: key);
   final String videourl;
   final VideoPlayerController controller;
-
-  @override
-  State<videoplayerwidget> createState() => _videoplayerwidgetState();
-}
-
-// ignore: camel_case_types
-class _videoplayerwidgetState extends State<videoplayerwidget> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: AspectRatio(
-          aspectRatio: widget.controller.value.aspectRatio,
-          child: VideoPlayer(widget.controller)),
+        aspectRatio: controller.value.aspectRatio,
+        child: VideoPlayer(controller),
+      ),
     );
   }
 }
+
