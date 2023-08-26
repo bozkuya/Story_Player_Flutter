@@ -55,9 +55,9 @@ class _designState extends State<design> {
       [
         Story(
           isseen: false,
-          name: 'photo_codeway',
+          name: 'photo',
           url:
-              'https://mobidictum.com/wp-content/uploads/2023/04/codeway.jpg',
+              'https://th.bing.com/th/id/R.2326f864b017d6d4edda5b2f1a15ebd6?rik=qaWh3vpmwuP%2f5Q&pid=ImgRaw&r=0',
           mediaType: MediaType.image,
           duration: 5,
         ),
